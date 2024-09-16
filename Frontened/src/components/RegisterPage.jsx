@@ -9,6 +9,7 @@ import { Link } from "react-router-dom";
 import registerImg from "../assets/register.jpg";
 import { useForm } from "react-hook-form";
 import { useState, useRef } from "react";
+import { EyeClosedIcon, EyeOpenIcon } from "@radix-ui/react-icons";
 
 export function RegisterPage() {
   const {
@@ -19,6 +20,7 @@ export function RegisterPage() {
   } = useForm();
   const fileInputRef = useRef(null);
   const [previewImage, setPreviewImage] = useState(null);
+  const [isOpen , setIsOpen ] = useState(false)
   
   const handleUploadClick = () => {
     if (fileInputRef.current) {
@@ -34,6 +36,11 @@ export function RegisterPage() {
       setPreviewImage(imageUrl); 
     }
   };
+  const handleRegister = (data) => {
+    console.log(data);
+    // Handle form submission
+  };
+
 
   console.log(previewImage)
   return (
@@ -49,7 +56,7 @@ export function RegisterPage() {
               Sign up and start your journey
             </p>
           </div>
-          <form className="mt-8 space-y-6">
+          <form className="mt-8 space-y-6"  onSubmit={handleSubmit(handleRegister)}>
             <div className="space-y-4">
               <div>
                 <Label htmlFor="username" className="text-white">
@@ -98,26 +105,35 @@ export function RegisterPage() {
                   </p>
                 )}
               </div>
-              <div>
+              <div className="relative">
                 <Label htmlFor="password" className="text-white">
                   Password
                 </Label>
                 <Input
                   id="password"
-                  type="password"
-                  {...register("password", {
-                    required: "Password is required",
-                    pattern: {
-                      value:
-                        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-                      message:
-                        "Password must be at least 8 characters, include an uppercase letter, lowercase letter, number and special character",
-                    },
-                  })}
-                  required
+                  type={isOpen ? "text" : "password"}
                   className="bg-gray-800 border-gray-700 text-white placeholder-gray-400"
                   placeholder="••••••••"
+                  {...register("password", {
+                    required: "Password is required",
+                    minLength: {
+                      value: 8,
+                      message: "Password must be at least 8 characters long",
+                    },
+                    validate: {
+                      hasUppercase: (value) =>
+                        /[A-Z]/.test(value) ||
+                        "Password must contain at least one uppercase letter",
+                      hasLowercase: (value) =>
+                        /[a-z]/.test(value) ||
+                        "Password must contain at least one lowercase letter",
+                      hasNumber: (value) =>
+                        /\d/.test(value) ||
+                        "Password must contain at least one number",
+                    },
+                  })}
                 />
+                 <span onClick={()=>{setIsOpen(!isOpen)}} className="absolute top-7 right-2 p-2 cursor-pointer ">{isOpen ? <EyeOpenIcon  className="fill-white"/> : <EyeClosedIcon className="fill-white"/>}</span>
                 {errors.password && (
                   <p className="mt-1 text-sm text-red-600">
                     {errors.password.message}
